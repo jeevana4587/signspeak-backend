@@ -15,38 +15,25 @@ function setupSocket(server) {
     console.log("🟢 Socket connected:", socket.id);
 
     socket.on("join-room", ({ roomId }) => {
-      let room = getRoom(roomId);
+  let room = getRoom(roomId);
 
-      if (!room) {
-        createRoom(roomId, socket.id);
-        socket.join(roomId);
+  if (!room) {
+    createRoom(roomId, socket.id);
+    socket.join(roomId);
+    console.log("🔥 Room mounted");
+    socket.emit("your-role", "caller"); // First person is caller
+    return;
+  }
 
-        socket.emit("room-joined", {
-          role: "caller",
-          participants: 1
-        });
-
-        console.log(`Room ${roomId} created by ${socket.id}`);
-        return;
-      }
-
-      if (room.length >= 2) {
-        socket.emit("room-error", "Room is full");
-        return;
-      }
-
-      joinRoom(roomId, socket.id);
-      socket.join(roomId);
-
-      socket.emit("room-joined", {
-        role: "callee",
-        participants: 2
-      });
-
-      socket.to(roomId).emit("peer-joined");
-
-      console.log(`Socket ${socket.id} joined room ${roomId}`);
-    });
+  joinRoom(roomId, socket.id);
+  socket.join(roomId);
+  console.log(`Socket ${socket.id} joined room ${roomId}`);
+  
+  socket.emit("your-role", "callee"); 
+  
+  // 🟢 CRITICAL: Tell the CALLER to start the offer now that callee is here
+  socket.to(roomId).emit("start-offer"); 
+});
 
     // WebRTC signaling
     socket.on("offer", ({ roomId, offer }) => {
