@@ -7,8 +7,16 @@ const {
 } = require("./rooms");
 
 function setupSocket(server) {
+  // CONFIGURATION HAPPENS HERE
   const io = new Server(server, {
-    cors: { origin: "*" },
+    cors: {
+      origin: "*", 
+      methods: ["GET", "POST"],
+      allowedHeaders: ["ngrok-skip-browser-warning"], 
+      credentials: true
+    },
+    allowEIO3: true,
+    transports: ['websocket', 'polling'] 
   });
 
   io.on("connection", (socket) => {
