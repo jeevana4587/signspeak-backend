@@ -70,6 +70,10 @@ function setupSocket(server) {
       socket.to(roomId).emit("ice-candidate", candidate);
     });
 
+    socket.on("gesture", ({ roomId, gesture, name }) => {
+  socket.to(roomId).emit("gesture", { gesture, name });
+});
+
     socket.on("leave-room", ({ roomId }) => {
       leaveRoom(roomId, socket.id);
       socket.leave(roomId);
